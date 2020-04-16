@@ -15,7 +15,8 @@ import com.ammu.repository.UserRepository;
 @RequestMapping("/user")  // http://localhost:8082/user
 public class AppController 
 {
-	@RequestMapping("/login")
+	//ADDED REQUEST MAPPING FOR LOGIN (http://localhost:8082/user/login?name="xyz"&password="***").
+	@RequestMapping("/login") 
 	public LoginModel login(@RequestParam(value="name")String name1,String password)
 	{
 		LoginModel loginModel = new LoginModel();
@@ -24,6 +25,7 @@ public class AppController
 		return loginModel;
 	}
 	
+	//ADDED REQUEST MAPPING FOR REGISTRATION.
 	@RequestMapping("/registration")
 	public RegistrationModel registration()
 	{
@@ -35,9 +37,11 @@ public class AppController
 		return registrationModel;
 	}
 	
+	//AUTOWIRED WHICH GIVE BEAN OBJECT TO UserRepsitory interface.
 	@Autowired
 	UserRepository user;
 	
+	//POST MAPPING TO CHECK THE DATABASE CONNECTIVITY(http://localhost:8082//user/add?name="xyz"&pwd="***"). 
 	@PostMapping(path="/add")
 	@ResponseBody
 	public String addLoginUser(@RequestParam(value="name") String name,@RequestParam(value="pwd") String password)
