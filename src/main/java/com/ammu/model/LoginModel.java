@@ -7,6 +7,7 @@ import javax.persistence.Id;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+//JPA ANNOTATION FOR MAPPING JAVA OBJECT TO DATABASE TABLE.
 @Entity
 public class LoginModel
 {
