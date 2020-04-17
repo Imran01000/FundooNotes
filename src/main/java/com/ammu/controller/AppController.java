@@ -60,7 +60,7 @@ public class AppController
 	//POST MAPPING TO CHECK THE DATABASE CONNECTIVITY(http://localhost:8082//user/add?name="xyz"&pwd="***"). 
 	@PostMapping(path="/add")
 	@ResponseBody
-	public RegistrationModel addRegistration( String fname, String lname, String mail,String password)
+	public RegistrationDto addRegistration( String fname, String lname, String mail,String password)
 	{
 		RegistrationModel model = new RegistrationModel();
 		model.setFname(fname);
@@ -68,20 +68,9 @@ public class AppController
 		model.setMail(mail);
 		model.setPassword(password);
 		user.save(model);
-		return model;	
-	}
-
-	@Autowired
-	RegistrationModel mod;
-
-	@RequestMapping("/add-user")
-	@ResponseBody
-	public RegistrationDto dto(String fname,String lname,String mail,String password)
-	{
+		RegistrationDto dto = new RegistrationDto();
 		ModelMapper mapper = new ModelMapper();
-		RegistrationModel model = user.save(mod);
-		RegistrationDto dto = mapper.map(model, RegistrationDto.class);
-		return dto;
+		mapper.map(model, dto);
+		return dto;	
 	}
-
 }
