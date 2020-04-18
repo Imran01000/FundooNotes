@@ -1,11 +1,8 @@
 package com.ammu.services;
 
-import java.util.Optional;
-
-import com.ammu.model.RegistrationModel;
+import com.ammu.dto.LoginDto;
 
 public interface UserService
 {
-	public Optional<RegistrationModel> findUserByEmail(String mail);
-	public void save(RegistrationModel model);
+	public String loginUser(LoginDto loginDto);
 }
