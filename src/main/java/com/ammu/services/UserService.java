@@ -1,8 +1,9 @@
 package com.ammu.services;
 
-import com.ammu.dto.LoginDto;
+import com.ammu.dto.RegistrationDto;
+import com.ammu.response.Response;
 
-public interface UserService
+public interface UserService 
 {
-	public String loginUser(LoginDto loginDto);
+	public Response registration(RegistrationDto registrationDto);
 }
