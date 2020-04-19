@@ -1,49 +1,43 @@
 package com.ammu.controller;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ammu.dto.LoginDto;
 import com.ammu.dto.RegistrationDto;
-import com.ammu.model.RegistrationModel;
 import com.ammu.repository.UserRepository;
+import com.ammu.response.Response;
 import com.ammu.services.UserService;
 
-@RestController
-@RequestMapping("/user")  // http://localhost:8082/user
+@RestController 
+@RequestMapping(path = "/user")    // http://localhost:8082/user
 public class AppController 
 {
-
+	//USER REPOSITORY AUTOWIRED TO GET THE OBJECT FROM JAVA BEAN CLASS.
+	@Autowired
+	UserRepository userRepository;
+	
+	//USER SERVICE AUTOWIRED TO GET THE OBJECT FROM JAVA BEAN CLASS.
 	@Autowired
 	UserService userService;
-
-	//ADDED REQUEST MAPPING FOR LOGIN (http://localhost:8082/user/login?name="xyz"&password="***").
-	@RequestMapping("/login") 
-	public String login(LoginDto loginDto)
+	
+	//RESPONSE TYPE METHOD IN WHICH WE CALLING ONE OF USER SERVICE IMPLEMENTATION METHOD.  
+	@PostMapping(path = "/registration")
+	@ResponseBody
+	public Response registration(RegistrationDto registrationDto)
 	{
-		String data = userService.loginUser(loginDto);
-		return data;
+		Response response = userService.registration(registrationDto);
+		return response;
 	}
+	
 
-	//POST MAPPING TO CHECK THE DATABASE CONNECTIVITY(http://localhost:8082//user/?name="xyz"&pwd="***"). 
-//	@PostMapping(path="/registration")
-//	@ResponseBody
-//	public RegistrationDto addRegistration( String fname, String lname, String mail,String password)
-//	{
-//		RegistrationModel model = new RegistrationModel();
-//		model.setFname(fname);
-//		model.setLname(lname);
-//		model.setMail(mail);
-//		model.setPassword(password);
-//		user.save(model);
-//		RegistrationDto dto = new RegistrationDto();
-//		ModelMapper mapper = new ModelMapper();
-//		mapper.map(model, dto);
-//		return dto;	
-//	}
+	@GetMapping(path="/login")
+	public LoginDto login(LoginDto loginDto)
+	{
+		return loginDto;
+	}
 }
