@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,19 +27,22 @@ public class AppController
 	@Autowired
 	UserService userService;
 	
-	//RESPONSE TYPE METHOD IN WHICH WE CALLING ONE OF USER SERVICE IMPLEMENTATION METHOD.  
+	Response response;
+	
+	//RESPONSE TYPE METHOD IN WHICH WE CALLING USER REGISTRATION METHOD.  
 	@PostMapping(path = "/registration")
 	@ResponseBody
 	public Response registration(RegistrationDto registrationDto)
 	{
-		Response response = userService.registration(registrationDto);
+		 response = userService.registration(registrationDto);
 		return response;
 	}
 	
-
-	@GetMapping(path="/login")
-	public LoginDto login(LoginDto loginDto)
+	//RESPONSE TYPE METHOD IN WHICH WE CALLING USER LOGIN METHOD.  
+	@RequestMapping(path = "/login" , method = RequestMethod.POST)
+	public Response login(LoginDto loginDto)
 	{
-		return loginDto;
+		response = userService.login(loginDto);
+		return response;
 	}
 }
