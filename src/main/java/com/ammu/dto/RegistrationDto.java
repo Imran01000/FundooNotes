@@ -1,12 +1,18 @@
 package com.ammu.dto;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class RegistrationDto 
 {
+	//DEFINE FIELDS.
 	private String fname;
 	private String lname;
-	private String mail;
+	private String email;
+	private String mobileNo;
 	private String password;
 	
+	//SETTER AND GETTER.
 	public String getFname() {
 		return fname;
 	}
@@ -19,11 +25,17 @@ public class RegistrationDto
 	public void setLname(String lname) {
 		this.lname = lname;
 	}
-	public String getMail() {
-		return mail;
+	public String getEmail() {
+		return email;
 	}
-	public void setMail(String mail) {
-		this.mail = mail;
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	public String getMobileNo() {
+		return mobileNo;
+	}
+	public void setMobileNo(String mobileNo) {
+		this.mobileNo = mobileNo;
 	}
 	public String getPassword() {
 		return password;
@@ -31,5 +43,6 @@ public class RegistrationDto
 	public void setPassword(String password) {
 		this.password = password;
 	}
+	
 	
 }
