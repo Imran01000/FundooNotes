@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ammu.dto.ForgetPasswordDto;
 import com.ammu.dto.LoginDto;
 import com.ammu.dto.RegistrationDto;
 import com.ammu.repository.UserRepository;
@@ -43,6 +44,14 @@ public class AppController
 	public Response login(LoginDto loginDto)
 	{
 		response = userService.login(loginDto);
+		return response;
+	}
+	
+	//RESPONSE TYPE METHOD In WHICH WE CALLING FORGET PASSWORD METHOD,
+	@RequestMapping(path = "/forget-password" , method = RequestMethod.POST)
+	public Response forgetPassword(ForgetPasswordDto forgetPasswordDto)
+	{
+		response = userService.forgetPassword(forgetPasswordDto);
 		return response;
 	}
 }
