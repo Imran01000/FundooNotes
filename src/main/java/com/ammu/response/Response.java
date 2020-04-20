@@ -2,14 +2,18 @@ package com.ammu.response;
 
 public class Response 
 {
+	//DEFINE FIELDS.
 	private String messageStatus;
 	private int messageCode;
 	
+	//DEFINE PARAMETRIZED CONSTRUCTOR.
 	public Response(String messageStatus, int messageCode) {
 		super();
 		this.messageStatus = messageStatus;
 		this.messageCode = messageCode;
 	}
+	
+	//SETTER AND GETTER.
 	public String getMessageStatus() {
 		return messageStatus;
 	}
