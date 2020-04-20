@@ -5,9 +5,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class LoginDto 
 {
+	//DEFINE FIELDS.
 	private String email;
 	private String password;
 	
+	//SETTER AND GETTER.
 	public String getEmail() {
 		return email;
 	}
