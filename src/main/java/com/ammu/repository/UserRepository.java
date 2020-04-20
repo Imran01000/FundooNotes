@@ -10,6 +10,7 @@ import com.ammu.model.UserModel;
 @Repository
 public interface UserRepository extends JpaRepository<UserModel, Integer> 
 {
+	//DEFINE METHODS.
 	UserModel findByEmail(String UserName);
 	UserModel findByPassword(String password);
 }
