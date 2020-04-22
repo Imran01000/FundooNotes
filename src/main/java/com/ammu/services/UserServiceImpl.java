@@ -68,7 +68,8 @@ public class UserServiceImpl implements UserService
 		{
 			mapper.map(resetPasswordDto, userModel);
 			user.save(userModel);
+			return new Response("Sucessfully set new password", 200);
 		}
-		return new Response("Sucessfully set new password", 200);
+		return new Response("Please provide correct email", 415);
 	}
 }
