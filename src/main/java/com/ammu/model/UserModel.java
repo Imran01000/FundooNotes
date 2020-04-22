@@ -7,9 +7,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import org.springframework.stereotype.Component;
-
-@Component
 @Entity
 @Table(name = "user_details")
 public class UserModel 
@@ -28,11 +25,11 @@ public class UserModel
 	@Column(name = "pwd" ,nullable = false)
 	private String password;
 	
-	@Column(name = "email" , nullable = false , unique = true)
+	@Column(name = "email" , nullable = true , unique = true)
 	private String email;
 	
 	@Column(name = "contact_no" , nullable = false , unique = true)
-	private long mobileNO;
+	private long mobileNo;
 	
 	public int getId() {
 		return id;
@@ -65,10 +62,10 @@ public class UserModel
 		this.email = email;
 	}
 	public long getMobileNO() {
-		return mobileNO;
+		return mobileNo;
 	}
 	public void setMobileNO(long mobileNO) {
-		this.mobileNO = mobileNO;
+		this.mobileNo= mobileNO;
 	}
 	
 	
