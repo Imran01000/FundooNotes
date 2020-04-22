@@ -2,6 +2,7 @@ package com.ammu.controller;
 
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -30,16 +31,16 @@ public class AppController
 	Response response;
 
 	//RESPONSE TYPE METHOD IN WHICH WE CALLING USER REGISTRATION METHOD.  
-	@RequestMapping(path = "/registration" , method = RequestMethod.POST)
-	public RegistrationDto registration(@Valid @RequestBody RegistrationDto registrationDto)
+	@PostMapping(path = "/registration")
+	public Response registration(@Valid @RequestBody RegistrationDto registrationDto)
 	{
 		response = userService.registration(registrationDto);
-		return registrationDto;
+		return response;
 		
 	}
 
 	//RESPONSE TYPE METHOD IN WHICH WE CALLING USER LOGIN METHOD.  
-	@RequestMapping(path = "/login" , method = RequestMethod.POST)
+	@PostMapping(path = "/login")
 	public Response login(@Valid @RequestBody LoginDto loginDto)
 	{
 		response = userService.login(loginDto);
@@ -47,15 +48,15 @@ public class AppController
 	}
 
 	//RESPONSE TYPE METHOD IN WHICH WE CALLING FORGET PASSWORD METHOD,
-	@RequestMapping(path = "/forget-password" , method = RequestMethod.POST)
-	public ForgetPasswordDto forgetPassword(@Valid @RequestBody ForgetPasswordDto forgetPasswordDto)
+	@PostMapping(path = "/forget-password") 
+	public Response forgetPassword(@Valid @RequestBody ForgetPasswordDto forgetPasswordDto)
 	{
 		response = userService.forgetPassword(forgetPasswordDto);
-		return forgetPasswordDto;
+		return response;
 	}
 	
 	//RESPONSE TYPE METHOD IN WHICH WE CALLING RESET PASSWORD METHOD.
-	@RequestMapping(path = "/reset-password" , method = RequestMethod.POST)
+	@PostMapping(path = "/reset-password")
 	public Response resetPassword(@Valid @RequestBody ResetPasswordDto resetPasswordDto)
 	{
 		response = userService.resetPassword(resetPasswordDto);
