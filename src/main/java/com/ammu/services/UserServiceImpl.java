@@ -2,13 +2,12 @@ package com.ammu.services;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import com.ammu.dto.ForgetPasswordDto;
 import com.ammu.dto.LoginDto;
 import com.ammu.dto.RegistrationDto;
+import com.ammu.dto.ResetPasswordDto;
 import com.ammu.model.UserModel;
 import com.ammu.repository.UserRepository;
 import com.ammu.response.Response;
@@ -23,8 +22,9 @@ public class UserServiceImpl implements UserService
 	ModelMapper mapper = new ModelMapper();
 
 	//CREATED USER ENTITY OBJECT.
-	UserModel userModel;
-
+	UserModel userModel = new UserModel();
+	
+	//IMPLEMENTATION FOR REGISTRATION FORM TO SAVE THE DATA.
 	@Override
 	public Response registration(RegistrationDto registrationDto) 
 	{
@@ -34,6 +34,7 @@ public class UserServiceImpl implements UserService
 		return new Response("Details successfully saved" , 200);
 	}
 
+	//IMPLEMENTATION OF METHOD FOR LOGIN.
 	@Override
 	public Response login(LoginDto loginDto) 
 	{
@@ -46,20 +47,28 @@ public class UserServiceImpl implements UserService
 		return new Response("You Logged in", 202);
 	}
 
+	//IMPLEMENTATION OF METHOD FOR FORGET PASSWORD.
 	@Override
 	public Response forgetPassword(ForgetPasswordDto forgetPasswordDto)
 	{
-		String pwd;
 		userModel = user.findByEmail(forgetPasswordDto.getEmail());
 		if(userModel != null)
 		{
-			pwd = user.findByPassword(userModel.getPassword()).toString();
+			return new Response("Its valid", 200);
 		}
-		else
+		return new Response("Please provide correct email", 415);
+	}
+	
+	//IMPLEMENTATION OF METHOD FOR RESET PASSWORD.
+	@Override
+	public Response resetPassword(ResetPasswordDto resetPasswordDto)
+	{
+		userModel = user.findByEmail(resetPasswordDto.getEmail());
+		if(userModel != null)
 		{
-			return new Response("Please enter correct email", 415);
+			mapper.map(resetPasswordDto, userModel);
+			user.save(userModel);
 		}
-
-		return new Response("Your password is" +pwd+" ", 200 );
+		return new Response("Sucessfully set new password", 200);
 	}
 }
