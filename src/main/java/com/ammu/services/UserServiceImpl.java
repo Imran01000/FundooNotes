@@ -2,6 +2,8 @@ package com.ammu.services;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import com.ammu.dto.ForgetPasswordDto;
@@ -17,6 +19,9 @@ public class UserServiceImpl implements UserService
 {
 	@Autowired
 	UserRepository user;
+	
+	@Autowired
+	JavaMailSender mailSender;
 
 	//USES MODEL MAPPER CLASS TO TRANSFER PROPERTIES FROM DTO TO ENTITY.
 	ModelMapper mapper = new ModelMapper();
@@ -71,5 +76,11 @@ public class UserServiceImpl implements UserService
 			return new Response("Sucessfully set new password", 200);
 		}
 		return new Response("Please provide correct email", 415);
+	}
+
+	@Override
+	public void sendMail(SimpleMailMessage email)
+	{
+		mailSender.send(email);		
 	}
 }
