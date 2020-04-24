@@ -15,5 +15,5 @@ public interface UserService
 	public Response login(LoginDto loginDto);
 	public Response forgetPassword(ForgetPasswordDto forgetPasswordDto);
 	public Response resetPassword(ResetPasswordDto resetPasswordDto);
-	public void sendMail(SimpleMailMessage email);
+	public void sendMail(String to , String subject , String text);
 }
