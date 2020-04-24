@@ -1,24 +1,43 @@
 package com.ammu.security.utility;
 
-import com.ammu.dto.RegistrationDto;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
-import io.jsonwebtoken.Claims;
+import com.ammu.dto.ForgetPasswordDto;
+import com.ammu.dto.LoginDto;
+import com.ammu.dto.RegistrationDto;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
 public class JwtToken 
 {
-	static String secretKey;
+	private static String secretKey;
 	
-//	public static RegistrationDto parseToken(String token)
-//	{
-//		
-//	}
-	
-	//GENERATES JWT TOKEN CONTAINING EMAIL AS SUBJECT.
+	public static final long JWT_TOKEN_VALIDITY = 1000*60*5;
+
 	public static String generateToken(RegistrationDto registrationDto)
 	{
-		Claims claims = Jwts.claims().setSubject(registrationDto.getEmail());
-		return Jwts.builder().setClaims(claims).signWith(SignatureAlgorithm.HS512, secretKey).compact();
+		Map<String , Object> claims = new HashMap<>();
+		return doGenerateToken(claims , registrationDto.getEmail());
+	}
+	
+	public static String generateToken(ForgetPasswordDto forgetPasswordDto)
+	{
+		Map<String , Object> claims = new HashMap<>();
+		return doGenerateToken(claims , forgetPasswordDto.getEmail());
+	}
+	
+	public static String generateToken(LoginDto loginDto)
+	{
+		Map<String , Object> claims = new HashMap<>();
+		return doGenerateToken(claims , loginDto.getEmail());
+	}
+	
+	public static String doGenerateToken(Map<String, Object> claims, String email) 
+	{
+		return Jwts.builder().setClaims(claims).setSubject(email).setIssuedAt(new Date(System.currentTimeMillis()))
+				.setExpiration(new Date(System.currentTimeMillis()+JWT_TOKEN_VALIDITY)).signWith(SignatureAlgorithm.HS512, secretKey)
+				.compact();
 	}
 }
