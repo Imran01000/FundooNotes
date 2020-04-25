@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService
 	@Override
 	public Response registration(RegistrationDto registrationDto) 
 	{
-		userService.sendMail(registrationDto.getEmail(), "Do Registration", "hello i am saying imran");
+		userService.sendMail(registrationDto.getEmail(), "Do Registration", "click to proceed"+JwtToken.generateToken(registrationDto));
 		mapper.map(registrationDto, userModel);
 		user.save(userModel);
 		return new Response("Details successfully saved" , 200);
@@ -83,7 +83,7 @@ public class UserServiceImpl implements UserService
 	@Override
 	public Response resetPassword(ResetPasswordDto resetPasswordDto)
 	{
-		userService.sendMail(resetPasswordDto.getConfirmPassword(), "Complete Registration", "hello i am saying imran");
+		userService.sendMail(resetPasswordDto.getConfirmPassword(), "reset password" , "click to proceed"+JwtToken.generateToken(resetPasswordDto));
 		userModel = user.findByEmail(resetPasswordDto.getConfirmPassword());
 		if(userModel != null)
 		{
