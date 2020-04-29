@@ -7,8 +7,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-@Entity
+import org.springframework.stereotype.Component;
+
+@Component
 @Table(name = "user_notes")
+@Entity
 public class NotesModel 
 {
 	@Id
