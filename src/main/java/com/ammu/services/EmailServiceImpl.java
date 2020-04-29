@@ -1,8 +1,11 @@
 package com.ammu.services;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -12,20 +15,25 @@ public class EmailServiceImpl implements EmailService
 	JavaMailSender mailSender;
 
 	@Override
-	public void sendMail(String to, String subject, String text) 
+	public void notificationService(String to, String subject, String text) 
 	{
-		SimpleMailMessage message = new SimpleMailMessage();
-		try 
-		{
-			message.setTo(to);
-			message.setFrom("is45934@gmail.com");
-			message.setSubject(subject);
-			message.setText(text);
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-		}
+			MimeMessage message = mailSender.createMimeMessage();
+			MimeMessageHelper helper;
+			try 
+			{
+				helper = new MimeMessageHelper(message , true);
+				helper.setTo(to);
+				helper.setFrom("imshaikh01000@gmail.com");
+				helper.setText(text);
+			} 
+			catch (MessagingException e) 
+			{
+
+				e.printStackTrace();
+			}
+			
+			mailSender.send(message);	
 	}
 
+	
 }
