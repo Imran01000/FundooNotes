@@ -23,7 +23,7 @@ public class EmailServiceImpl implements EmailService
 			{
 				helper = new MimeMessageHelper(message , true);
 				helper.setTo(to);
-				helper.setFrom("imshaikh01000@gmail.com");
+				helper.setSubject(subject);
 				helper.setText(text);
 			} 
 			catch (MessagingException e) 
