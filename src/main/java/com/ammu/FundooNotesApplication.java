@@ -3,10 +3,15 @@ package com.ammu;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
-public class FundooNotesApplication {
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
-	public static void main(String[] args) {
+@SpringBootApplication
+@EnableSwagger2
+public class FundooNotesApplication
+{
+
+	public static void main(String[] args) 
+	{
 		SpringApplication.run(FundooNotesApplication.class, args);
 	}
 
