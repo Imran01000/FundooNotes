@@ -2,6 +2,9 @@ package com.ammu.services;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import com.ammu.dto.ForgetPasswordDto;
@@ -14,6 +17,7 @@ import com.ammu.response.Response;
 import com.ammu.security.utility.JwtToken;
 
 @Service
+@PropertySource("classpath:message.properties")
 public class UserServiceImpl implements UserService
 {
 	@Autowired
@@ -26,8 +30,12 @@ public class UserServiceImpl implements UserService
 	EmailService emailService;
 
 	ModelMapper mapper = new ModelMapper();
-
-	UserModel userModel = new UserModel();
+	
+	@Autowired
+	UserModel userModel;
+	
+	@Autowired
+	Environment enviroment;
 	
 	//IMPLEMENTATION FOR REGISTRATION FORM TO SAVE THE DATA.
 	@Override
@@ -37,7 +45,7 @@ public class UserServiceImpl implements UserService
 				"Hey thankyou to connect with us hope you are doing good  "+JwtToken.generateToken(registrationDto));
 		mapper.map(registrationDto, userModel);
 		user.save(userModel);
-		return new Response("Details successfully saved" , 200);
+		return new Response( enviroment.getProperty("registration.success.text") , enviroment.getProperty("registration.success.code") );
 	}
 
 	//IMPLEMENTATION OF METHOD FOR LOGIN.
@@ -48,9 +56,9 @@ public class UserServiceImpl implements UserService
 
 		if(userModel == null)
 		{
-			return  new Response("Not valid",415);
+			return  new Response(enviroment.getProperty("login.error.text") , enviroment.getProperty("login.error.code"));
 		}
-		return new Response("You Logged in", 202);
+		return new Response(enviroment.getProperty("login.success.text") , enviroment.getProperty("login.success.code"));
 	}
 
 	//IMPLEMENTATION OF METHOD FOR FORGET PASSWORD.
@@ -60,9 +68,9 @@ public class UserServiceImpl implements UserService
 		userModel = user.findByEmail(forgetPasswordDto.getEmail());
 		if(userModel != null)
 		{
-			return new Response("Its valid", 200);
+			return new Response(enviroment.getProperty("forget.success.text"), enviroment.getProperty("forget.success.code"));
 		}
-		return new Response("Please provide correct email", 415);
+		return new Response(enviroment.getProperty("forget.error.text"), enviroment.getProperty("forget.error.code"));
 	}
 
 	//IMPLEMENTATION OF METHOD FOR RESET PASSWORD.
@@ -74,9 +82,9 @@ public class UserServiceImpl implements UserService
 		{
 			mapper.map(resetPasswordDto, userModel);
 			user.save(userModel);
-			return new Response("Sucessfully set new password", 200);
+			return new Response(enviroment.getProperty("reset.success.text"), enviroment.getProperty("reset.success.code"));
 		}
-		return new Response("Please provide correct email", 415);
+		return new Response(enviroment.getProperty("reset.error.text"), enviroment.getProperty("reset.error.code"));
 	}
 
 	
