@@ -1,13 +1,21 @@
 package com.ammu.response;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class Response 
 {
 	//DEFINE FIELDS.
 	private String messageStatus;
-	private int messageCode;
+	private String messageCode;
+	
+	public Response()
+	{
+		super();
+	}
 	
 	//DEFINE PARAMETRIZED CONSTRUCTOR.
-	public Response(String messageStatus, int messageCode) {
+	public Response(String messageStatus, String messageCode) {
 		super();
 		this.messageStatus = messageStatus;
 		this.messageCode = messageCode;
@@ -20,10 +28,10 @@ public class Response
 	public void setMessageStatus(String messageStatus) {
 		this.messageStatus = messageStatus;
 	}
-	public int getMessageCode() {
+	public String getMessageCode() {
 		return messageCode;
 	}
-	public void setMessageCode(int messageCode) {
+	public void setMessageCode(String messageCode) {
 		this.messageCode = messageCode;
 	}
 	
