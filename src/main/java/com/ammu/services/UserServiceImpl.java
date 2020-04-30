@@ -28,8 +28,9 @@ public class UserServiceImpl implements UserService
 	
 	@Autowired
 	EmailService emailService;
-
-	ModelMapper mapper = new ModelMapper();
+	
+	@Autowired
+	ModelMapper mapper;
 	
 	@Autowired
 	UserModel userModel;
