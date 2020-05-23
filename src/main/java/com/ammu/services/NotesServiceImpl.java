@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import com.ammu.dto.NotesDto;
 import com.ammu.exceptionHandling.NoteIdNotFoundException;
+import com.ammu.exceptionHandling.NotesTitleNotFoundException;
 import com.ammu.model.NotesModel;
 import com.ammu.model.UserModel;
 import com.ammu.repository.NoteRepository;
@@ -56,75 +57,99 @@ public class NotesServiceImpl implements NotesService
 	}
 
 	@Override
-	public Response deleteNote(String token)
+	public Response deleteNote(String token , int noteId)
 	{
 		int id = JwtToken.retrieveIdFromToken(token);
+		Optional<UserModel> userData = userRepository.findById(id);
 		if(id == 0)
 			throw new NoteIdNotFoundException("This ID is not present","400" );
-		//<UserModel> userData = userRepository.findById(id);
-		noteRepo.deleteById(id);
-		return new Response(enviroment.getProperty("noteDelete.success.text") , enviroment.getProperty("noteDelete.success.code"));
+		UserModel user = userData.get();
+		Optional<NotesModel> noteData = noteRepo.findByIdAndUserModel(noteId , user);
+		
+		if(noteData.isEmpty())
+			return new Response("This note id is not present", "400");
+		noteRepo.deleteById(noteId);
+		
+		if(noteRepo.findById(noteId).isPresent())
+			return new Response(enviroment.getProperty("noteDelete.success.text") , enviroment.getProperty("noteDelete.success.code"));
+		return new Response("Note is not deleted", "400");
 	}
 
-	@Transactional
 	@Override
-	public Response updateNote(NotesDto notesDto , int id , String token) 
+	public Response updateNote(NotesDto notesDto , int noteId , String token) 
 	{
 
-		noteRepo.updateTitleAndDescription(notesDto.getTitle(), notesDto.getDescription(), id);
-		mapper.map(notesDto, notesModel);
+		int id = JwtToken.retrieveIdFromToken(token);
+		Optional<UserModel> userData = userRepository.findById(id);
+		UserModel user = userData.get();
+		Optional<NotesModel> noteData = noteRepo.findByIdAndUserModel(noteId, user);
+		if(noteData.isPresent())
+		{
+			NotesModel notesModel = mapper.map(notesDto, NotesModel.class);
+			noteData.get().setTitle(notesDto.getTitle());
+			noteData.get().setDescription(notesDto.getDescription());
+			noteRepo.save(notesModel);
+		}
+		
 		return new Response(enviroment.getProperty("noteUpdate.success.text") , enviroment.getProperty("noteUpdate.success.code"));	
 	}
 
-	@Override
-	public List<NotesModel> retriveAllNote() 
-	{
-		//		 User user = userData.get();
-		//	        List<Note> allNotes = noteRepository.findAllByUser(user).stream()
-		//	                .filter(u -> !(u.isArchived() || u.isTrashed())).collect(Collectors.toList());
-		//	        return allNotes;
-		
-		return (List<NotesModel>) noteRepo.findAll();
-	}
+//	@Override
+//	public List<NotesModel> retriveAllNote() 
+//	{
+//		//		 User user = userData.get();
+//		//	        List<Note> allNotes = noteRepository.findAllByUser(user).stream()
+//		//	                .filter(u -> !(u.isArchived() || u.isTrashed())).collect(Collectors.toList());
+//		//	        return allNotes;
+//		
+//		return (List<NotesModel>) noteRepo.findAll();
+//	}
 
 	@Override
-	public Response findByTitle(String title , String Token) 
+	public Response findByTitle(String title , String token) 
 	{
-		notesModel = noteRepo.findByTitle(title);
-		if(title == notesModel.getTitle())
+		int id = JwtToken.retrieveIdFromToken(token);
+		Optional<UserModel> userData = userRepository.findById(id);
+		UserModel user = userData.get();
+		Optional<NotesModel> noteData = noteRepo.findByTitleAndUserModel(title , user);
+		if(noteData.get().getTitle().isEmpty())
 		{
-			return new Response(enviroment.getProperty("title.success.text") , enviroment.getProperty("title.success.code"));
+			throw new NotesTitleNotFoundException("Title is not present", "400");
 		}
-		return new Response(enviroment.getProperty("title.error.text") , enviroment.getProperty("title.error.code"));
+		return new Response(enviroment.getProperty("title.success.text") , enviroment.getProperty("title.success.code"));
 	}
 
 	@Override
-	public Response findByDescription(String description)
+	public Response findByDescription(String description , String token)
 	{
-		notesModel = noteRepo.findByDescription(description);
-		if(description == notesModel.getDescription());
+		int id = JwtToken.retrieveIdFromToken(token);
+		Optional<UserModel> userData = userRepository.findById(id);
+		UserModel user = userData.get();
+		Optional<NotesModel> noteData = noteRepo.findByTitleAndUserModel(description, user);
+		if(noteData.get().getDescription().isEmpty())
 		{
-			return new Response(enviroment.getProperty("data.success.text") , enviroment.getProperty("data.success.code"));
+			return new Response("not present", "400");
 		}
+		return new Response(enviroment.getProperty("data.success.text") , enviroment.getProperty("data.success.code"));
 	}
 
-	@Override
-	public List<NotesModel> sortByTitle() 
-	{
-		return (List<NotesModel>) noteRepo.sortByTitle();
-	}
-
-	@Override
-	public List<NotesModel> sortByDescription() 
-	{
-		return (List<NotesModel>) noteRepo.sortByDescription();
-	}
-
-	@Override
-	public LocalDateTime setRemainder() 
-	{
-		LocalDateTime currentTime = LocalDateTime.now();
-		return currentTime;
-	}
+//	@Override
+//	public List<NotesModel> sortByTitle() 
+//	{
+//		return (List<NotesModel>) noteRepo.sortByTitle();
+//	}
+//
+//	@Override
+//	public List<NotesModel> sortByDescription() 
+//	{
+//		return (List<NotesModel>) noteRepo.sortByDescription();
+//	}
+//
+//	@Override
+//	public LocalDateTime setRemainder() 
+//	{
+//		LocalDateTime currentTime = LocalDateTime.now();
+//		return currentTime;
+//	}
 
 }
