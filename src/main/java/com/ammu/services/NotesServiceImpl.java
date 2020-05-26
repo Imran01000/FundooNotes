@@ -1,10 +1,8 @@
 package com.ammu.services;
-
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
-
-import javax.transaction.Transactional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +11,8 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import com.ammu.dto.NotesDto;
+import com.ammu.dto.ReminderDto;
+import com.ammu.exceptionHandling.NoteException;
 import com.ammu.exceptionHandling.NoteIdNotFoundException;
 import com.ammu.exceptionHandling.NotesTitleNotFoundException;
 import com.ammu.model.NotesModel;
@@ -83,27 +83,32 @@ public class NotesServiceImpl implements NotesService
 		Optional<UserModel> userData = userRepository.findById(id);
 		UserModel user = userData.get();
 		Optional<NotesModel> noteData = noteRepo.findByIdAndUserModel(noteId, user);
+		if(!userData.isPresent())
+			return new Response("User is not valid" , "401");
+		
 		if(noteData.isPresent())
 		{
-			NotesModel notesModel = mapper.map(notesDto, NotesModel.class);
 			noteData.get().setTitle(notesDto.getTitle());
 			noteData.get().setDescription(notesDto.getDescription());
-			noteRepo.save(notesModel);
+			NotesModel notesModel = mapper.map(notesDto, NotesModel.class);
+			noteRepo.save(noteData.get());
+			return new Response(enviroment.getProperty("noteUpdate.success.text") , enviroment.getProperty("noteUpdate.success.code"));	
 		}
-		
-		return new Response(enviroment.getProperty("noteUpdate.success.text") , enviroment.getProperty("noteUpdate.success.code"));	
+		return new Response("Failed to update", "401");
 	}
 
-//	@Override
-//	public List<NotesModel> retriveAllNote() 
-//	{
-//		//		 User user = userData.get();
-//		//	        List<Note> allNotes = noteRepository.findAllByUser(user).stream()
-//		//	                .filter(u -> !(u.isArchived() || u.isTrashed())).collect(Collectors.toList());
-//		//	        return allNotes;
-//		
-//		return (List<NotesModel>) noteRepo.findAll();
-//	}
+	@Override
+	public List<NotesModel> retriveAllNote( String token) 
+	{
+		int id = JwtToken.retrieveIdFromToken(token);
+		Optional<UserModel> userData = userRepository.findById(id);
+		if(userData.isPresent())
+		{
+			return (List<NotesModel>) noteRepo.findAll();
+		}
+		
+		return null;
+	}
 
 	@Override
 	public Response findByTitle(String title , String token) 
@@ -133,23 +138,59 @@ public class NotesServiceImpl implements NotesService
 		return new Response(enviroment.getProperty("data.success.text") , enviroment.getProperty("data.success.code"));
 	}
 
-//	@Override
-//	public List<NotesModel> sortByTitle() 
-//	{
-//		return (List<NotesModel>) noteRepo.sortByTitle();
-//	}
-//
-//	@Override
-//	public List<NotesModel> sortByDescription() 
-//	{
-//		return (List<NotesModel>) noteRepo.sortByDescription();
-//	}
-//
-//	@Override
-//	public LocalDateTime setRemainder() 
-//	{
-//		LocalDateTime currentTime = LocalDateTime.now();
-//		return currentTime;
-//	}
+	@Override
+	public Response trashAndUnTrash(int noteId, String token)
+	{
+		int id = JwtToken.retrieveIdFromToken(token);
+		Optional<UserModel> userData = userRepository.findById(id);
+		UserModel user = userData.get();
+		Optional<NotesModel> noteData = noteRepo.findByIdAndUserModel(noteId, user);
+		
+		return null;
+	}
 
+	@Override
+	public List<NotesModel> sortByTitle(String token) 
+	{
+		return (List<NotesModel>) noteRepo.findByOrderByTitleAsc();
+	}
+
+	@Override
+	public List<NotesModel> sortByDescription(String token) 
+	{
+		return (List<NotesModel>) noteRepo.findByOrderByDescriptionAsc();
+	}
+
+	@Override
+	public Response setReminder(ReminderDto remainderDto, String token) 
+	{
+		LocalDateTime ldt = LocalDateTime.of(remainderDto.getYear(), remainderDto.getMonth(), remainderDto.getDay(),
+				remainderDto.getHour(), remainderDto.getMinute());
+		
+		int id = JwtToken.retrieveIdFromToken(token);
+		Optional<UserModel> userData = userRepository.findById(id);
+		
+		if(userData.isEmpty())
+			return new Response("Can't set reminder Invalid user", "401");
+		
+		DateTimeFormatter format = DateTimeFormatter.BASIC_ISO_DATE;
+	
+		String formatOfDateTime = ldt.format(format);
+
+		Optional<NotesModel> notesData = noteRepo.findById(id);
+
+		if (notesData.isPresent()) 
+		{
+
+			notesData.get().setReminder(formatOfDateTime);
+		}
+		else
+		{
+			throw new NoteException("Can't able to set reminder" , "400");
+		}
+
+		noteRepo.save(notesData.get());
+		
+		return null;
+	}
 }
