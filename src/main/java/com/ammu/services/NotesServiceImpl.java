@@ -3,6 +3,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +54,7 @@ public class NotesServiceImpl implements NotesService
 		NotesModel noteData = mapper.map(notesDto , NotesModel.class);
 		noteData.setUserModel(userData.get());
 		noteRepo.save(noteData);
-		return new Response(enviroment.getProperty("noteAdd.success.text") , enviroment.getProperty("noteAdd.success.code"));
+		return new Response(enviroment.getProperty("noteAdd.success.text") , enviroment.getProperty("noteAdd.success.code"), token);
 	}
 
 	@Override
@@ -65,11 +66,11 @@ public class NotesServiceImpl implements NotesService
 			throw new NoteIdNotFoundException("This ID is not present","400" );
 		UserModel user = userData.get();
 		Optional<NotesModel> noteData = noteRepo.findByIdAndUserModel(noteId , user);
-		
+
 		if(noteData.isEmpty())
 			return new Response("This note id is not present", "400");
 		noteRepo.deleteById(noteId);
-		
+
 		if(noteRepo.findById(noteId).isPresent())
 			return new Response(enviroment.getProperty("noteDelete.success.text") , enviroment.getProperty("noteDelete.success.code"));
 		return new Response("Note is not deleted", "400");
@@ -85,13 +86,13 @@ public class NotesServiceImpl implements NotesService
 		Optional<NotesModel> noteData = noteRepo.findByIdAndUserModel(noteId, user);
 		if(!userData.isPresent())
 			return new Response("User is not valid" , "401");
-		
+
 		if(noteData.isPresent())
 		{
 			noteData.get().setTitle(notesDto.getTitle());
 			noteData.get().setDescription(notesDto.getDescription());
 			NotesModel notesModel = mapper.map(notesDto, NotesModel.class);
-			noteRepo.save(noteData.get());
+			noteRepo.save(notesModel);
 			return new Response(enviroment.getProperty("noteUpdate.success.text") , enviroment.getProperty("noteUpdate.success.code"));	
 		}
 		return new Response("Failed to update", "401");
@@ -104,10 +105,12 @@ public class NotesServiceImpl implements NotesService
 		Optional<UserModel> userData = userRepository.findById(id);
 		if(userData.isPresent())
 		{
-			return (List<NotesModel>) noteRepo.findAll();
+			List<NotesModel> allNotes = noteRepo.findAll().stream()
+					.filter(i -> !(i.isArchive() || i.isTrash())).collect(Collectors.toList());
+			return allNotes;
 		}
-		
-		return null;
+
+		return (List<NotesModel>) null;
 	}
 
 	@Override
@@ -145,7 +148,6 @@ public class NotesServiceImpl implements NotesService
 		Optional<UserModel> userData = userRepository.findById(id);
 		UserModel user = userData.get();
 		Optional<NotesModel> noteData = noteRepo.findByIdAndUserModel(noteId, user);
-		
 		return null;
 	}
 
@@ -162,19 +164,50 @@ public class NotesServiceImpl implements NotesService
 	}
 
 	@Override
+	public Response archive(int noteId, String token) 
+	{
+		int id = JwtToken.retrieveIdFromToken(token);
+		userRepository.findById(id);
+		Optional<NotesModel> noteData = noteRepo.findById(noteId);
+		if(noteData.isPresent())
+		{
+			NotesModel note = noteData.get();
+			note.setArchive(true);
+			noteRepo.saveAndFlush(note);
+			return new Response("Archive set successful", "200");
+		}
+		return new Response("something went wrong", "401");
+	}
+
+	@Override
+	public Response setpined(int noteId, String token) 
+	{
+		int id = JwtToken.retrieveIdFromToken(token);
+		Optional<UserModel> userData = userRepository.findById(id);
+		if(userData.isPresent())
+		{
+			Optional<NotesModel> noteData = noteRepo.findById(noteId);
+			noteData.get().setPined(true);
+			return new Response("pined set successful", "200");
+		}
+
+		return new Response("something went wrong", "401");
+	}
+
+	@Override
 	public Response setReminder(ReminderDto remainderDto, String token) 
 	{
 		LocalDateTime ldt = LocalDateTime.of(remainderDto.getYear(), remainderDto.getMonth(), remainderDto.getDay(),
 				remainderDto.getHour(), remainderDto.getMinute());
-		
+
 		int id = JwtToken.retrieveIdFromToken(token);
 		Optional<UserModel> userData = userRepository.findById(id);
-		
+
 		if(userData.isEmpty())
 			return new Response("Can't set reminder Invalid user", "401");
-		
+
 		DateTimeFormatter format = DateTimeFormatter.BASIC_ISO_DATE;
-	
+
 		String formatOfDateTime = ldt.format(format);
 
 		Optional<NotesModel> notesData = noteRepo.findById(id);
@@ -183,14 +216,34 @@ public class NotesServiceImpl implements NotesService
 		{
 
 			notesData.get().setReminder(formatOfDateTime);
+			noteRepo.save(notesData.get());
+			return new Response("Reminder set", "200");
 		}
 		else
 		{
 			throw new NoteException("Can't able to set reminder" , "400");
 		}
+	}
 
-		noteRepo.save(notesData.get());
+	@Override
+	public Response addColor(String token, int noteId, String color)
+	{
+		int id = JwtToken.retrieveIdFromToken(token);
+		Optional<UserModel> userData = userRepository.findById(id);
+		if(!userData.isPresent())
+			return new Response("User is not present", "401");
 		
-		return null;
+		UserModel user = userData.get();
+		NotesModel note = noteRepo.findByIdAndUserModel(noteId, user).get();
+		note.setColor(color);
+		note = noteRepo.saveAndFlush(note);
+		if(note == null)
+		{
+			return new Response("note is not present", "401");
+		}
+		else
+		{
+			return new Response("note color set", "201");
+		}
 	}
 }
