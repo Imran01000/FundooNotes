@@ -22,5 +22,9 @@ public interface NotesService
 	public Response trashAndUnTrash(int noteId , String token);
 	public List<NotesModel> sortByTitle(String token);
 	public List<NotesModel> sortByDescription(String token);
+	public Response archive(int noteId, String token);
+	public Response setpined(int noteId, String token);
 	public Response setReminder(ReminderDto remainderDto , String token);
+	public Response addColor(String token, int noteId, String color);
+	
 }
