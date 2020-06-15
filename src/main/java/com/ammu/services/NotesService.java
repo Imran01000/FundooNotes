@@ -17,6 +17,8 @@ public interface NotesService
 	public Response deleteNote(String token , int noteId);
 	public Response updateNote(NotesDto notesDto , int noteId , String token); 
 	public List<NotesModel> retriveAllNote(String token);
+	public List<NotesModel> showAllArchiveNote(String token);
+	public List<NotesModel> showAllTrashNote(String token);
 	public Response findByTitle(String title , String token);
 	public Response findByDescription(String description , String token);
 	public Response trashAndUnTrash(int noteId , String token);
@@ -24,7 +26,7 @@ public interface NotesService
 	public List<NotesModel> sortByDescription(String token);
 	public Response archive(int noteId, String token);
 	public Response setpined(int noteId, String token);
-	public Response setReminder(ReminderDto remainderDto , String token);
+	public Response setReminder(ReminderDto remainderDto , String token, int noteId);
 	public Response addColor(String token, int noteId, String color);
 	
 }
