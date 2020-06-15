@@ -2,6 +2,8 @@ package com.ammu.controller;
 
 import java.util.List;
 
+import javax.ws.rs.Path;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,7 +50,7 @@ public class NotesController
 	}
 	
 	@PutMapping(path = "/updatenote/{id}")
-	public ResponseEntity<Response> updateUserNotes(@PathVariable(name = "id") int id, NotesDto notesDto
+	public ResponseEntity<Response> updateUserNotes(@PathVariable(name = "id") int id, @RequestBody NotesDto notesDto
 			,@RequestHeader(name = "token") String token)
 	{
 		response = noteService.updateNote(notesDto, id, token);
@@ -59,6 +61,18 @@ public class NotesController
 	public List<NotesModel> retriveAllNote(@RequestHeader("token")String token) 
 	{
 		return noteService.retriveAllNote(token);
+	}
+	
+	@GetMapping(path = "/archivenotes")
+	public List<NotesModel> showAllArchiveNotes(@RequestHeader("token")String token) 
+	{
+		return noteService.showAllArchiveNote(token);
+	}
+	
+	@GetMapping(path = "/trash")
+	public List<NotesModel> showAllTrashNotes(@RequestHeader("token")String token) 
+	{
+		return noteService.showAllTrashNote(token);
 	}
 	
 	@GetMapping(value = "/findbytitle")
@@ -94,10 +108,18 @@ public class NotesController
 		return new ResponseEntity<Response>(response , HttpStatus.OK);
 	}
 	
-	@PutMapping(path = "/reminder")
-	public ResponseEntity<Response> setRemainder(ReminderDto reminderDto, @RequestHeader("token") String token)
+	@PutMapping(path = "/trash/{noteId}")
+	public ResponseEntity<Response> setTrash(@PathVariable int noteId ,@RequestHeader("token") String token)
 	{
-		response = noteService.setReminder(reminderDto, token);
+		response = noteService.trashAndUnTrash(noteId, token);
+		return new ResponseEntity<Response>(response , HttpStatus.OK);
+	}
+	
+	@PutMapping(path = "/reminder/{noteId}")
+	public ResponseEntity<Response> setRemainder(@RequestBody ReminderDto reminderDto, @RequestHeader("token") String token, @PathVariable int noteId)
+	{
+		response = noteService.setReminder(reminderDto, token, noteId);
+		System.out.println(reminderDto.getReminder());
 		return new ResponseEntity<Response>(response , HttpStatus.OK);
 	}
 	
