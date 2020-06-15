@@ -1,6 +1,5 @@
 package com.ammu.services;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import com.ammu.dto.NotesDto;
 import com.ammu.dto.ReminderDto;
-import com.ammu.exceptionHandling.NoteException;
 import com.ammu.exceptionHandling.NoteIdNotFoundException;
 import com.ammu.exceptionHandling.NotesTitleNotFoundException;
 import com.ammu.model.NotesModel;
@@ -49,6 +47,7 @@ public class NotesServiceImpl implements NotesService
 	@Override
 	public Response addNote(NotesDto notesDto , String token) 
 	{
+		System.out.println(notesDto.getDescription());
 		int id = JwtToken.retrieveIdFromToken(token);
 		Optional<UserModel> userData = userRepository.findById(id);
 		NotesModel noteData = mapper.map(notesDto , NotesModel.class);
@@ -64,15 +63,20 @@ public class NotesServiceImpl implements NotesService
 		Optional<UserModel> userData = userRepository.findById(id);
 		if(id == 0)
 			throw new NoteIdNotFoundException("This ID is not present","400" );
+		
 		UserModel user = userData.get();
 		Optional<NotesModel> noteData = noteRepo.findByIdAndUserModel(noteId , user);
 
 		if(noteData.isEmpty())
 			return new Response("This note id is not present", "400");
-		noteRepo.deleteById(noteId);
-
+		
 		if(noteRepo.findById(noteId).isPresent())
+		{
+			noteRepo.deleteById(noteId);
 			return new Response(enviroment.getProperty("noteDelete.success.text") , enviroment.getProperty("noteDelete.success.code"));
+		}
+			
+		
 		return new Response("Note is not deleted", "400");
 	}
 
@@ -112,7 +116,8 @@ public class NotesServiceImpl implements NotesService
 
 		return (List<NotesModel>) null;
 	}
-
+	
+	
 	@Override
 	public Response findByTitle(String title , String token) 
 	{
@@ -145,10 +150,17 @@ public class NotesServiceImpl implements NotesService
 	public Response trashAndUnTrash(int noteId, String token)
 	{
 		int id = JwtToken.retrieveIdFromToken(token);
-		Optional<UserModel> userData = userRepository.findById(id);
-		UserModel user = userData.get();
-		Optional<NotesModel> noteData = noteRepo.findByIdAndUserModel(noteId, user);
-		return null;
+		userRepository.findById(id);
+		Optional<NotesModel> noteData = noteRepo.findById(noteId);
+		if(noteData.isPresent())
+		{
+			NotesModel note = noteData.get();
+			note.setTrash(true);
+			noteRepo.saveAndFlush(note);
+			return new Response("Trash set successful", "200");
+		}
+		return new Response("something went wrong", "401");
+
 	}
 
 	@Override
@@ -195,36 +207,29 @@ public class NotesServiceImpl implements NotesService
 	}
 
 	@Override
-	public Response setReminder(ReminderDto remainderDto, String token) 
+	public Response setReminder(ReminderDto reminderDto, String token, int noteId) 
 	{
-		LocalDateTime ldt = LocalDateTime.of(remainderDto.getYear(), remainderDto.getMonth(), remainderDto.getDay(),
-				remainderDto.getHour(), remainderDto.getMinute());
-
+		System.out.println(reminderDto.getReminder());
 		int id = JwtToken.retrieveIdFromToken(token);
-		Optional<UserModel> userData = userRepository.findById(id);
-
-		if(userData.isEmpty())
-			return new Response("Can't set reminder Invalid user", "401");
-
-		DateTimeFormatter format = DateTimeFormatter.BASIC_ISO_DATE;
-
-		String formatOfDateTime = ldt.format(format);
-
-		Optional<NotesModel> notesData = noteRepo.findById(id);
-
-		if (notesData.isPresent()) 
-		{
-
-			notesData.get().setReminder(formatOfDateTime);
-			noteRepo.save(notesData.get());
-			return new Response("Reminder set", "200");
-		}
-		else
-		{
-			throw new NoteException("Can't able to set reminder" , "400");
-		}
+        Optional <UserModel> userData = userRepository.findById(id);
+        UserModel user = userData.get();
+        Optional<NotesModel> noteData = noteRepo.findByIdAndUserModel(noteId, user);
+        mapper.map(reminderDto, NotesModel.class);
+        noteData.get().setReminder(reminderDto.getReminder());
+        NotesModel note = noteRepo.saveAndFlush(noteData.get());
+        if(!noteData.isPresent())
+        	return new Response("Note is not present", "401");
+        
+        if (note != null)
+        {
+            return new Response("Reminder set successful", "201");
+        } 
+        else
+        {
+            return new Response("Something went wrong", "401");
+        }
 	}
-
+	
 	@Override
 	public Response addColor(String token, int noteId, String color)
 	{
@@ -245,5 +250,25 @@ public class NotesServiceImpl implements NotesService
 		{
 			return new Response("note color set", "201");
 		}
+	}
+
+	@Override
+	public List<NotesModel> showAllArchiveNote(String token)
+	{
+		int id = JwtToken.retrieveIdFromToken(token);
+		Optional<UserModel> userData = userRepository.findById(id);
+		if(userData.isPresent())
+		{
+			List<NotesModel> allNotes = noteRepo.findAll();
+			return allNotes;
+		}
+
+		return (List<NotesModel>) null;
+	}
+
+	@Override
+	public List<NotesModel> showAllTrashNote(String token)
+	{
+		return showAllArchiveNote(token);
 	}
 }
