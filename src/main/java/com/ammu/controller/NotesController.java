@@ -2,8 +2,6 @@ package com.ammu.controller;
 
 import java.util.List;
 
-import javax.ws.rs.Path;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +24,7 @@ import com.ammu.response.Response;
 import com.ammu.services.NotesService;
 
 @RestController
-@RequestMapping(path = "/user")
+@RequestMapping(path = "/note")
 @CrossOrigin(origins = "*")
 public class NotesController 
 {
@@ -35,14 +33,14 @@ public class NotesController
 	
 	private Response response;
 	
-	@PostMapping("/addnote")
+	@PostMapping("/note")
 	public ResponseEntity<Response> addUserNotes(@RequestBody NotesDto notesDto, @RequestHeader("token") String token)
 	{
 		response = noteService.addNote(notesDto , token);		
 		return new ResponseEntity<Response>(response, HttpStatus.OK);	
 	}
 	
-	@DeleteMapping("/deletenote/{id}")
+	@DeleteMapping("/note/{id}")
 	public ResponseEntity<Response> deleteNotes( @RequestHeader("token") String token, @PathVariable("id") int noteId)
 	{
 		response = noteService.deleteNote(token , noteId);
@@ -76,16 +74,9 @@ public class NotesController
 	}
 	
 	@GetMapping(value = "/findbytitle")
-	public ResponseEntity<Response> findByTitle(@RequestParam(name = "title")String data, @RequestHeader("token") String token)
+	public ResponseEntity<Response> findByData(@RequestParam(name = "data")String data, @RequestHeader("token") String token)
 	{
 		response = noteService.findByTitle(data, token);
-		return new ResponseEntity<Response>(response, HttpStatus.OK);
-	}
-	
-	@GetMapping(path = "/findbydescription")
-	public ResponseEntity<Response> findByDescription(@RequestParam(name = "description") String data, @RequestHeader("token") String token)
-	{
-		response = noteService.findByDescription(data, token);
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 	
@@ -127,6 +118,20 @@ public class NotesController
 	public ResponseEntity<Response> setColor(@RequestParam String color, @PathVariable int id, @RequestHeader("token") String token)
 	{
 		response = noteService.addColor(token, id, color);
+		return new ResponseEntity<Response>(response , HttpStatus.OK);
+	}
+	
+	@PutMapping(path = "/restorenote/{noteId}")
+	public ResponseEntity<Response> restoreNote(@PathVariable int noteId ,@RequestHeader("token") String token)
+	{
+		response = noteService.restoreNote(noteId, token);
+		return new ResponseEntity<Response>(response , HttpStatus.OK);
+	}
+	
+	@PutMapping(path = "/removereminder/{noteId}")
+	public ResponseEntity<Response> removedRemainder(@RequestHeader("token") String token, @PathVariable int noteId)
+	{
+		response = noteService.removeReminder(token, noteId);
 		return new ResponseEntity<Response>(response , HttpStatus.OK);
 	}
 }
